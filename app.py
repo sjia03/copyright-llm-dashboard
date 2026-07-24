@@ -29,39 +29,9 @@ TASK_LABELS = {
     "books3-demand": "Books3 Demand",
 }
 
-# Same set used by the live dashboard's JS -- covers every naming variant of
-# the core models across tasks (e.g. name-cloze's "gpt-3.5" vs concept-test's
-# "gpt-3.5-turbo"). Featured rows sort first and get highlighted.
-MAIN_MODELS = {
-    "gpt-3.5", "gpt-3.5-turbo",
-    "gpt-4o",
-    "claude (legacy)", "claude-3-haiku",
-    "gemini (legacy)",
-    "llama-3-8b", "llama-3.1-8b",
-    "llama-3-70b", "llama-3.1-70b",
-    "claude-haiku-4.5",
-    "deepseek-v4-pro",
-    "gpt-5.4-mini",
-    "gemini-3.1-flash-lite",
-}
-
-FEATURED_BG = "background-color: rgba(35,130,201,0.10)"
-
-
 @st.cache_data
 def load_data():
     return json.loads(DATA_PATH.read_text(encoding="utf-8"))
-
-
-def sort_featured_first(results):
-    return sorted(results, key=lambda r: 0 if r.get("model") in MAIN_MODELS else 1)
-
-
-def highlight_featured(df, model_col="Model"):
-    def _row_style(row):
-        is_featured = row[model_col] in MAIN_MODELS
-        return [FEATURED_BG if is_featured else "" for _ in row]
-    return df.style.apply(_row_style, axis=1)
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +91,7 @@ def raw3_row(r, label, tier_or_outcome):
 
 
 def render_books3_raw_table(task_id, data):
-    results = sort_featured_first(data.get("results", []))
+    results = data.get("results", [])
     rows = []
     if task_id == "name-cloze":
         for r in results:
@@ -136,7 +106,7 @@ def render_books3_raw_table(task_id, data):
     df = pd.DataFrame(rows)
     label_col = "Tier" if task_id == "name-cloze" else "Outcome"
     df = df.rename(columns={"": label_col})
-    st.dataframe(highlight_featured(df), use_container_width=True, hide_index=True)
+    st.dataframe(df, use_container_width=True, hide_index=True)
     st.caption(
         "Unconditional group means -- no regression, no controls, no clustering, just the plain average "
         "score in each group. Diff = In-Books3 mean minus Not-in-Books3 mean, in percentage points. "
@@ -171,7 +141,7 @@ def regression_row(label, tier_or_outcome, status, n_books, n_items, regressions
 
 
 def render_regression_table(task_id, data):
-    results = sort_featured_first(data.get("results", []))
+    results = data.get("results", [])
     rows = []
     if task_id == "name-cloze":
         for r in results:
@@ -198,7 +168,7 @@ def render_regression_table(task_id, data):
     df = pd.DataFrame(rows)
     label_col = "Tier" if task_id == "name-cloze" else ("Metric" if task_id == "text-extraction" else "Outcome")
     df = df.rename(columns={"": label_col})
-    st.dataframe(highlight_featured(df), use_container_width=True, hide_index=True)
+    st.dataframe(df, use_container_width=True, hide_index=True)
     st.caption(
         "Regression spec ladder: (1) OLS score ~ books3. (2) IV: books3 instrumented by shares "
         "(books3's publication-year composition). (3) adds popularity-bucket fixed effects. (4) adds "
@@ -226,19 +196,19 @@ def headline_spec(regressions):
 
 
 def coefficient_plot_rows(task_id, data):
-    results = sort_featured_first(data.get("results", []))
+    results = data.get("results", [])
     rows = []
     if task_id == "name-cloze":
         for r in results:
             h = headline_spec(r.get("regressions"))
             if h:
-                rows.append({"label": r["model"], "featured": r["model"] in MAIN_MODELS, **h})
+                rows.append({"label": r["model"], **h})
     else:
         for r in results:
             for o in r.get("outcomes", []):
                 h = headline_spec(o.get("regressions"))
                 if h:
-                    rows.append({"label": f"{r['model']} — {o['outcome']}", "featured": r["model"] in MAIN_MODELS, **h})
+                    rows.append({"label": f"{r['model']} — {o['outcome']}", **h})
     return rows
 
 
@@ -282,7 +252,7 @@ def render_coefficient_plot(task_id, data):
 
 
 def pub_year_trend_cards(task_id, data):
-    results = sort_featured_first(data.get("results", []))
+    results = data.get("results", [])
     cards = []
     if task_id == "name-cloze":
         for r in results:
