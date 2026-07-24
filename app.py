@@ -27,6 +27,7 @@ TASK_LABELS = {
     "concept-test": "Concept Test",
     "text-extraction": "Text Extraction",
     "books3-demand": "Books3 Demand",
+    "revision-tracker": "Revision Tracker",
 }
 
 @st.cache_data
@@ -369,10 +370,63 @@ def render_books3_demand(data):
 
 
 # ---------------------------------------------------------------------------
+# Revision tracker (curated content from the R&R reviews, not eval data)
+# ---------------------------------------------------------------------------
+
+PRIORITY_COLOR = {"critical": "red", "suggested": "gray"}
+PRIORITY_LABEL = {"critical": "Critical", "suggested": "Suggested"}
+
+
+def status_color(status):
+    s = (status or "").lower()
+    if "progress" in s:
+        return "blue"
+    if "done" in s or "complete" in s:
+        return "green"
+    return "gray"
+
+
+def render_tracker_item(item):
+    with st.container(border=True):
+        st.markdown(f"**{item['title']}**")
+        badges = [f":{PRIORITY_COLOR.get(item['priority'], 'gray')}-badge[{PRIORITY_LABEL.get(item['priority'], item['priority'])}]"]
+        badges.append(f":{status_color(item.get('status'))}-badge[{item.get('status', '')}]")
+        badges += [f":violet-badge[{r}]" for r in item.get("reviewers", [])]
+        st.markdown(" ".join(badges))
+        st.write(item["description"])
+        if item.get("notes"):
+            st.info(f"**Notes:** {item['notes']}", icon="📝")
+
+
+def render_revision_tracker(data):
+    d = data.get("decision", {})
+    header = f"**{d.get('outcome', '')}**"
+    if d.get("date"):
+        header += f" — {d['date']}"
+    if d.get("editor"):
+        header += f" ({d['editor']})"
+    st.warning(f"{header}\n\n{d.get('summary', '')}", icon="⚠️")
+
+    for cat in data.get("categories", []):
+        items = cat.get("items", [])
+        st.subheader(f"{cat['label']} ({len(items)})")
+        st.caption(cat.get("description", ""))
+        if not items:
+            st.caption("No items in this category.")
+            continue
+        for item in items:
+            render_tracker_item(item)
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def render_task(task_id, data):
+    if task_id == "revision-tracker":
+        render_revision_tracker(data)
+        return
+
     note = data.get("note") or data.get("excluded_note")
     render_funnel(data.get("funnel", []))
     if note:
