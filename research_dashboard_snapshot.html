@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Progress — Snapshot</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --section-bg: #f7f7f5;
+    --card-bg: #ffffff;
+    --border: rgba(55,53,47,0.09);
+    --border-strong: rgba(55,53,47,0.16);
+    --text-primary: rgba(55,53,47,0.92);
+    --text-secondary: rgba(55,53,47,0.65);
+    --text-muted: rgba(55,53,47,0.45);
+    --pill-blue-bg: #e7f3f8; --pill-blue-text: #0b6e99;
+    --pill-green-bg: #edf3ec; --pill-green-text: #448361;
+    --pill-gray-bg: #f1f1ef; --pill-gray-text: #787774;
+    --pill-amber-bg: #fbf3db; --pill-amber-text: #9f6b00;
+    --code-bg: rgba(135,131,120,0.15);
+    --accent: #2382c9;
+    --row-stripe: rgba(135,131,120,0.05);
+    --featured-bg: rgba(35,130,201,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #191919;
+      --section-bg: #202020;
+      --card-bg: #252525;
+      --border: rgba(255,255,255,0.094);
+      --border-strong: rgba(255,255,255,0.16);
+      --text-primary: rgba(255,255,255,0.90);
+      --text-secondary: rgba(255,255,255,0.65);
+      --text-muted: rgba(255,255,255,0.42);
+      --pill-blue-bg: rgba(46,170,220,0.16); --pill-blue-text: #6dc4e8;
+      --pill-green-bg: rgba(68,131,97,0.18); --pill-green-text: #7cc99a;
+      --pill-gray-bg: rgba(255,255,255,0.08); --pill-gray-text: rgba(255,255,255,0.6);
+      --pill-amber-bg: rgba(159,107,0,0.2); --pill-amber-text: #e0b04a;
+      --code-bg: rgba(255,255,255,0.08);
+      --accent: #3987e5;
+      --row-stripe: rgba(255,255,255,0.03);
+      --featured-bg: rgba(57,135,229,0.14);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: var(--bg); color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1180px; margin: 0 auto; padding: 32px 24px 72px; }
+
+  h1 { font-size: 25px; font-weight: 700; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
+  .subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 26px; flex-wrap: wrap; }
+  .tab-btn {
+    appearance: none; background: none; border: none; font: inherit; font-size: 14px; font-weight: 600;
+    color: var(--text-muted); padding: 8px 14px 10px; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text-secondary); }
+  .tab-btn.active { color: var(--text-primary); border-bottom-color: var(--accent); }
+  .tab-panel[hidden] { display: none; }
+
+  section.block { margin-bottom: 34px; }
+  section.block h2 {
+    font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+    color: var(--text-secondary); margin: 0 0 10px;
+  }
+  .block-note { font-size: 12.5px; color: var(--text-muted); margin: 8px 2px 0; line-height: 1.5; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em;
+    color: var(--text-muted); font-weight: 600; padding: 8px 10px; background: var(--section-bg);
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--row-stripe); }
+  .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+  .muted { color: var(--text-muted); }
+  .sec-label { color: var(--text-secondary); }
+
+  .pill { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 4px; padding: 2px 7px; white-space: nowrap; }
+  .pill.complete { background: var(--pill-green-bg); color: var(--pill-green-text); }
+  .pill.in-progress, .pill.partial { background: var(--pill-blue-bg); color: var(--pill-blue-text); }
+  .pill.not-run { background: var(--pill-gray-bg); color: var(--pill-gray-text); }
+  .pill.tier { background: var(--pill-amber-bg); color: var(--pill-amber-text); }
+
+  .genre-dropdown {
+    display: block; margin-top: 5px; font: inherit; font-size: 12px;
+    color: var(--text-secondary); background: var(--section-bg);
+    border: 1px solid var(--border-strong); border-radius: 5px;
+    padding: 3px 6px; max-width: 260px;
+  }
+
+  tr.featured-row td { background: var(--featured-bg); }
+  tr.featured-row:nth-child(even) td { background: var(--featured-bg); }
+
+  .coef-cell { line-height: 1.3; }
+  .coef-cell .coef { font-weight: 600; }
+  .coef-cell .se { font-size: 11px; color: var(--text-muted); }
+  .coef-cell .na { color: var(--text-muted); font-style: italic; font-weight: 400; }
+
+  .loading, .error { padding: 40px 0; text-align: center; color: var(--text-muted); font-size: 14px; }
+  .error { color: var(--pill-amber-text); }
+
+  .callout {
+    background: var(--pill-amber-bg); border: 1px solid var(--border-strong); border-radius: 8px;
+    padding: 12px 16px; font-size: 13px; line-height: 1.55; color: var(--text-primary); margin-bottom: 24px;
+  }
+  .callout b { color: var(--pill-amber-text); }
+  .outcome-head { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+  .sign-hint { font-size: 11px; font-weight: 400; color: var(--text-muted); display: block; }
+
+  .outcome-card {
+    border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+    background: var(--card-bg); font-size: 13px; line-height: 1.55;
+  }
+  .outcome-card h3 { font-size: 12.5px; font-weight: 700; margin: 0 0 6px; color: var(--text-secondary); }
+  .eqn-card {
+    border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+    background: var(--card-bg);
+  }
+  .eqn-card h3 { font-size: 12.5px; font-weight: 700; margin: 0 0 8px; color: var(--text-secondary); }
+  .eqn-formula {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px; color: var(--text-primary);
+    background: var(--section-bg); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
+    overflow-x: auto; white-space: nowrap;
+  }
+  .eqn-note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; }
+
+  .stats-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 800px) { .stats-groups { grid-template-columns: 1fr; } }
+  .stats-groups h3 { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin: 0 0 6px; }
+  .cat-row td { font-weight: 600; background: var(--section-bg); color: var(--text-secondary); font-size: 11.5px; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1><span>📊</span> Research Progress <span class="pill not-run" style="vertical-align:2px;">Snapshot</span></h1>
+    <div class="subtitle">Static snapshot captured 2026-07-24 (Streamlit deploy) — not live. Re-export and push to refresh.</div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+  </div>
+
+<script>
+const SNAPSHOT_DATA = {"name-cloze":{"funnel":[{"step":"BookNLP-processed cloze passage bank exists","remaining":"15,050 books","filter_type":"Pipeline availability","why":"BookNLP must successfully parse named entities from a book before any masked-name passage can be built at all."},{"step":"Matched to filedata/book-level.csv (needs book_title, in_books3, num_ratings)","remaining":"12,916 books","filter_type":"Metadata join","why":"Every downstream regression needs Books3 membership and popularity; a book without that metadata can't be used no matter how good its passage bank is."},{"step":"Original 6 models: run on the full matched corpus directly","remaining":"12,916 books","filter_type":"No further filtering","why":"Cheap/fast models (gpt-3.5, gpt-4o, claude, gemini, llama-8b, llama-70b) could be run at full scale, giving the highest-powered estimate of the Books3 effect."},{"step":"New/incremental models: stratified sampling by in_books3 x popularity bucket, drawn without replacement across rounds","remaining":"12,911 books sampled to date (rounds of 494 / 495 / 991 / 1968 / 8832 / 131)","filter_type":"Stratified sampling, append-only registry","why":"Newer models are far more expensive per call; stratifying keeps the Books3 x popularity cross-tab balanced even in a partial sample, so IV/pop-FE regressions stay estimable before the full corpus finishes."}],"excluded_note":"9 abandoned pilot files excluded (2-10 books each, never reaching full scale): gemini-2.5-pro x3, deepseek-v3, gpt-5.4 (non-mini), llama-3.3-70b x3, gemini-3.1-flash (100bk, folded into the flash-lite combined file), gemini-3.5-flash (41bk).","summary_stats":{"full_corpus_n12916":[{"category":"Book type","trait":"Nonfiction","n":10673,"pct":82.6},{"category":"Book type","trait":"Fiction","n":1623,"pct":12.6},{"category":"Book type","trait":"Unclassified","n":620,"pct":4.8},{"category":"Books3 status","trait":"Not in Books3","n":6567,"pct":50.8},{"category":"Books3 status","trait":"In Books3","n":6349,"pct":49.2},{"category":"Popularity (num_ratings)","trait":"0-10 ratings","n":3093,"pct":23.9},{"category":"Popularity (num_ratings)","trait":"10-100 ratings","n":3653,"pct":28.3},{"category":"Popularity (num_ratings)","trait":"100-1,000 ratings","n":3182,"pct":24.6},{"category":"Popularity (num_ratings)","trait":"1,000+ ratings","n":2988,"pct":23.1},{"category":"Publication era","trait":"Pre-1950","n":931,"pct":7.2},{"category":"Publication era","trait":"1950-1999","n":4211,"pct":32.6},{"category":"Publication era","trait":"2000-2009","n":3557,"pct":27.5},{"category":"Publication era","trait":"2010-2013 (Books3 peak)","n":3396,"pct":26.3},{"category":"Publication era","trait":"2014-2019","n":517,"pct":4.0},{"category":"Publication era","trait":"2020+","n":274,"pct":2.1},{"category":"Top genres (multi-label)","trait":"Nonfiction","n":6517,"pct":50.5},{"category":"Top genres (multi-label)","trait":"History","n":3195,"pct":24.7},{"category":"Top genres (multi-label)","trait":"Fiction","n":1388,"pct":10.7},{"category":"Top genres (multi-label)","trait":"Philosophy","n":1275,"pct":9.9},{"category":"Top genres (multi-label)","trait":"Biography","n":1243,"pct":9.6},{"category":"Top genres (multi-label)","trait":"Politics","n":1137,"pct":8.8},{"category":"Top genres (multi-label)","trait":"Science","n":1055,"pct":8.2},{"category":"Top genres (multi-label)","trait":"Reference","n":954,"pct":7.4},{"category":"Top genres (multi-label)","trait":"Psychology","n":928,"pct":7.2},{"category":"Top genres (multi-label)","trait":"Classics","n":756,"pct":5.9},{"category":"Top genres (multi-label)","trait":"Religion","n":727,"pct":5.6},{"category":"Top genres (multi-label)","trait":"Business","n":682,"pct":5.3}],"restricted_sample_n494":[{"category":"Book type","trait":"Nonfiction","n":417,"pct":84.4},{"category":"Book type","trait":"Fiction","n":56,"pct":11.3},{"category":"Book type","trait":"Unclassified","n":21,"pct":4.3},{"category":"Books3 status","trait":"Not in Books3","n":247,"pct":50.0},{"category":"Books3 status","trait":"In Books3","n":247,"pct":50.0},{"category":"Popularity (num_ratings)","trait":"0-10 ratings","n":122,"pct":24.7},{"category":"Popularity (num_ratings)","trait":"10-100 ratings","n":124,"pct":25.1},{"category":"Popularity (num_ratings)","trait":"100-1,000 ratings","n":124,"pct":25.1},{"category":"Popularity (num_ratings)","trait":"1,000+ ratings","n":124,"pct":25.1},{"category":"Publication era","trait":"Pre-1950","n":29,"pct":5.9},{"category":"Publication era","trait":"1950-1999","n":158,"pct":32.0},{"category":"Publication era","trait":"2000-2009","n":127,"pct":25.7},{"category":"Publication era","trait":"2010-2013 (Books3 peak)","n":137,"pct":27.7},{"category":"Publication era","trait":"2014-2019","n":24,"pct":4.9},{"category":"Publication era","trait":"2020+","n":19,"pct":3.8},{"category":"Top genres (multi-label)","trait":"Nonfiction","n":260,"pct":52.6},{"category":"Top genres (multi-label)","trait":"History","n":113,"pct":22.9},{"category":"Top genres (multi-label)","trait":"Philosophy","n":52,"pct":10.5},{"category":"Top genres (multi-label)","trait":"Politics","n":49,"pct":9.9},{"category":"Top genres (multi-label)","trait":"Fiction","n":49,"pct":9.9},{"category":"Top genres (multi-label)","trait":"Biography","n":48,"pct":9.7},{"category":"Top genres (multi-label)","trait":"Science","n":40,"pct":8.1},{"category":"Top genres (multi-label)","trait":"Psychology","n":40,"pct":8.1},{"category":"Top genres (multi-label)","trait":"Self Help","n":34,"pct":6.9},{"category":"Top genres (multi-label)","trait":"Reference","n":33,"pct":6.7},{"category":"Top genres (multi-label)","trait":"Religion","n":33,"pct":6.7},{"category":"Top genres (multi-label)","trait":"Classics","n":31,"pct":6.3}]},"results":[{"n_books":12916,"n_items":12916,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.006994252902379907,"se":0.0019016829331345631,"p":0.00023513631052347482,"stars":"***","fstat":null,"n":12916},{"spec":"2","label":"IV","coef":0.028410043052154776,"se":0.004369680832752632,"p":7.945488711413873e-11,"stars":"***","fstat":3890.601637524716,"n":12916},{"spec":"3","label":"IV + pop FE","coef":0.02915436303740182,"se":0.004508988966880799,"p":1.0074319156672118e-10,"stars":"***","fstat":3584.956290931118,"n":12916},{"spec":"4","label":"IV + pop FE + controls","coef":0.029572535805906686,"se":0.004480371703763802,"p":4.0986991578506604e-11,"stars":"***","fstat":3581.0392611667853,"n":12916}]},"model":"gpt-3.5","tier":"original-6","status":"complete","source":"book-level.csv column"},{"n_books":12916,"n_items":12916,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.009640002740303794,"se":0.0018530546728754518,"p":1.969192495919367e-07,"stars":"***","fstat":null,"n":12916},{"spec":"2","label":"IV","coef":0.023077518717608436,"se":0.004222310784388514,"p":4.6130856912185436e-08,"stars":"***","fstat":3890.601637524716,"n":12916},{"spec":"3","label":"IV + pop FE","coef":0.022727333745640288,"se":0.004377183328844209,"p":2.077923395571446e-07,"stars":"***","fstat":3584.956290931118,"n":12916},{"spec":"4","label":"IV + pop FE + controls","coef":0.022617941526221652,"se":0.004342111244299496,"p":1.89888435864205e-07,"stars":"***","fstat":3581.0392611667853,"n":12916}]},"model":"gpt-4o","tier":"original-6","status":"complete","source":"book-level.csv column"},{"n_books":12916,"n_items":12916,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.018455218598716024,"se":0.002159117396861903,"p":1.2570124645883798e-17,"stars":"***","fstat":null,"n":12916},{"spec":"2","label":"IV","coef":0.010392967499079697,"se":0.0049217261605920635,"p":0.03471640292908562,"stars":"**","fstat":3890.601637524716,"n":12916},{"spec":"3","label":"IV + pop FE","coef":0.012169130711538356,"se":0.00506932979715539,"p":0.016370885891058506,"stars":"**","fstat":3584.956290931118,"n":12916},{"spec":"4","label":"IV + pop FE + controls","coef":0.012184068031947826,"se":0.005057758675012209,"p":0.015996927276219708,"stars":"**","fstat":3581.0392611667853,"n":12916}]},"model":"claude (legacy)","tier":"original-6","status":"complete","source":"book-level.csv column"},{"n_books":12916,"n_items":12916,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.007708412043290534,"se":0.0008194854571998942,"p":5.133967920746328e-21,"stars":"***","fstat":null,"n":12916},{"spec":"2","label":"IV","coef":0.0007958868294328236,"se":0.0018256949468736328,"p":0.6628828956862338,"stars":"","fstat":3890.601637524716,"n":12916},{"spec":"3","label":"IV + pop FE","coef":0.00033792217935968427,"se":0.001923162706005539,"p":0.8605204467631813,"stars":"","fstat":3584.956290931118,"n":12916},{"spec":"4","label":"IV + pop FE + controls","coef":0.0005243328253364821,"se":0.0019066702844609523,"p":0.7833168438851219,"stars":"","fstat":3581.0392611667853,"n":12916}]},"model":"llama-3-8b","tier":"original-6","status":"complete","source":"book-level.csv column"},{"n_books":12916,"n_items":12916,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.022183809303428705,"se":0.0022247189761674304,"p":2.031153308542818e-23,"stars":"***","fstat":null,"n":12916},{"spec":"2","label":"IV","coef":0.013336533694433106,"se":0.005016379093954643,"p":0.007846660684970308,"stars":"***","fstat":3890.601637524716,"n":12916},{"spec":"3","label":"IV + pop FE","coef":0.014912197028968732,"se":0.005180236343370596,"p":0.00399354491990489,"stars":"***","fstat":3584.956290931118,"n":12916},{"spec":"4","label":"IV + pop FE + controls","coef":0.015303116407410444,"se":0.005161190092818774,"p":0.003026471338525516,"stars":"***","fstat":3581.0392611667853,"n":12916}]},"model":"llama-3-70b","tier":"original-6","status":"complete","source":"book-level.csv column"},{"n_books":12916,"n_items":12916,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.026578446521521422,"se":0.002320523584610322,"p":2.254690716859683e-30,"stars":"***","fstat":null,"n":12916},{"spec":"2","label":"IV","coef":0.011035674301127507,"se":0.0052070298687600216,"p":0.03405837637972153,"stars":"**","fstat":3890.601637524716,"n":12916},{"spec":"3","label":"IV + pop FE","coef":0.013793675428037,"se":0.005357080211462698,"p":0.010028370525591912,"stars":"**","fstat":3584.956290931118,"n":12916},{"spec":"4","label":"IV + pop FE + controls","coef":0.014126763221001148,"se":0.005320117976896768,"p":0.007922669162134133,"stars":"***","fstat":3581.0392611667853,"n":12916}]},"model":"gemini (legacy)","tier":"original-6","status":"complete","source":"book-level.csv column"},{"n_books":494,"n_items":44940,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.0053077582290346256,"se":0.01806053986354777,"p":0.7688442373706224,"stars":"","fstat":null,"n":494},{"spec":"2","label":"IV","coef":0.04962485733103206,"se":0.03700411186859803,"p":0.17989989319154076,"stars":"","fstat":163.55423403905107,"n":494},{"spec":"3","label":"IV + pop FE","coef":0.013776441214146562,"se":0.03470887013894585,"p":0.6914307793894501,"stars":"","fstat":165.58304656669986,"n":494},{"spec":"4","label":"IV + pop FE + controls","coef":0.0127803532643882,"se":0.03473310021862897,"p":0.7129038823406089,"stars":"","fstat":166.20117242214823,"n":494}]},"model":"claude-opus-4-8","tier":"new-3","status":"complete","source":"claude-opus-4-8_20260710_102851.csv","last_updated":"2026-07-10T12:02:35.317379"},{"n_books":989,"n_items":90674,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.007623796818341022,"se":0.011819294822852088,"p":0.5189079048825997,"stars":"","fstat":null,"n":989},{"spec":"2","label":"IV","coef":0.05905322347390651,"se":0.024928606204763986,"p":0.017841370223069086,"stars":"**","fstat":314.66520920138066,"n":989},{"spec":"3","label":"IV + pop FE","coef":0.02964449609578068,"se":0.023367898760554867,"p":0.20458407389796074,"stars":"","fstat":318.81181641340805,"n":989},{"spec":"4","label":"IV + pop FE + controls","coef":0.03234895610966637,"se":0.023313694368870416,"p":0.16527359968034805,"stars":"","fstat":320.7928584476162,"n":989}]},"model":"claude-sonnet-5","tier":"incremental","status":"in-progress","source":"incremental_claude-sonnet-5.jsonl","last_updated":"2026-07-15T22:56:39.008110"},{"n_books":989,"n_items":90674,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.0022568243929102505,"se":0.012270856780522137,"p":0.8540782340900428,"stars":"","fstat":null,"n":989},{"spec":"2","label":"IV","coef":0.0686364861844142,"se":0.02578131907608498,"p":0.007761868888906509,"stars":"***","fstat":314.66520920138083,"n":989},{"spec":"3","label":"IV + pop FE","coef":0.0383151233499186,"se":0.024151645825402152,"p":0.11263966083367039,"stars":"","fstat":318.8118164134084,"n":989},{"spec":"4","label":"IV + pop FE + controls","coef":0.041676645543694324,"se":0.024047561741871698,"p":0.08307925398899085,"stars":"*","fstat":320.7928584476531,"n":989}]},"model":"gpt-5.5","tier":"incremental","status":"in-progress","source":"incremental_gpt-5.5.jsonl","last_updated":"2026-07-15T22:01:49.595539"},{"n_books":12911,"n_items":1186645,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.0438973078825615,"se":0.002864188350420322,"p":5.1051400158739e-53,"stars":"***","fstat":null,"n":12911},{"spec":"2","label":"IV","coef":-0.00786653633446388,"se":0.006417982006143186,"p":0.22031066407233646,"stars":"","fstat":3888.3912662829866,"n":12911},{"spec":"3","label":"IV + pop FE","coef":-0.0045165579132240286,"se":0.0065646110733821195,"p":0.49144266151727445,"stars":"","fstat":3584.6925597434742,"n":12911},{"spec":"4","label":"IV + pop FE + controls","coef":-0.003839212941975534,"se":0.006537724460627346,"p":0.5570425694442469,"stars":"","fstat":3580.7050603560874,"n":12911}]},"model":"claude-haiku-4.5","tier":"incremental","status":"complete","source":"incremental_claude-haiku-4.5.jsonl","last_updated":"2026-07-19T08:55:11.196768"},{"n_books":12911,"n_items":1186651,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.044661359392489705,"se":0.0030699108445630206,"p":6.005080828991424e-48,"stars":"***","fstat":null,"n":12911},{"spec":"2","label":"IV","coef":-0.008178759475945707,"se":0.00690414580355681,"p":0.23616942884262038,"stars":"","fstat":3888.3912662829875,"n":12911},{"spec":"3","label":"IV + pop FE","coef":-0.0039037720786785357,"se":0.007076592232761131,"p":0.5811910803623275,"stars":"","fstat":3584.6925597434724,"n":12911},{"spec":"4","label":"IV + pop FE + controls","coef":-0.0021374127361264428,"se":0.007042080145933872,"p":0.7614935464066857,"stars":"","fstat":3580.705060211492,"n":12911}]},"model":"deepseek-v4-pro","tier":"incremental","status":"complete","source":"incremental_deepseek-v4-pro.jsonl","last_updated":"2026-07-19T08:49:36.287083"},{"n_books":12911,"n_items":1186653,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.02454200412993388,"se":0.002227381977289742,"p":3.1182952181976933e-28,"stars":"***","fstat":null,"n":12911},{"spec":"2","label":"IV","coef":0.007612409207199189,"se":0.005043809184434302,"p":0.13123287120925076,"stars":"","fstat":3888.3912662829875,"n":12911},{"spec":"3","label":"IV + pop FE","coef":0.010067369554417338,"se":0.005189354889840608,"p":0.05237919648499956,"stars":"*","fstat":3584.6925597434793,"n":12911},{"spec":"4","label":"IV + pop FE + controls","coef":0.010314244014906215,"se":0.005153815318994485,"p":0.04536187914615142,"stars":"**","fstat":3580.705060356383,"n":12911}]},"model":"gpt-5.4-mini","tier":"incremental","status":"complete","source":"incremental_gpt-5.4-mini.jsonl","last_updated":"2026-07-19T08:43:48.178011"},{"n_books":12911,"n_items":1228081,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.04990167310697774,"se":0.0030417926792935877,"p":1.7511505143872378e-60,"stars":"***","fstat":null,"n":12911},{"spec":"2","label":"IV","coef":-0.009271383048146564,"se":0.006822831753903329,"p":0.17418585143548104,"stars":"","fstat":3888.3912662829894,"n":12911},{"spec":"3","label":"IV + pop FE","coef":-0.00526121974763627,"se":0.0069261820230438476,"p":0.44748578706955944,"stars":"","fstat":3584.692559743475,"n":12911},{"spec":"4","label":"IV + pop FE + controls","coef":-0.004746664409748025,"se":0.006896755631015098,"p":0.49129788682949105,"stars":"","fstat":3580.70506035738,"n":12911}]},"model":"gemini-3.1-flash-lite","tier":"incremental","status":"complete","source":"incremental_gemini-3.1-flash-lite.jsonl","last_updated":"2026-07-19T08:57:08.017083"}]},"concept-test":{"funnel":[{"step":"book-level.csv source","remaining":"12,916 books","filter_type":"\u2014","why":"Starting universe of all books with usable metadata."},{"step":"Nonfiction filter","remaining":"9,220 books","filter_type":"Non-LLM metadata","why":"Concepts/frameworks (as opposed to plot events) are a nonfiction-shaped unit of memorization; fiction is reserved for character-test instead."},{"step":"Genre eligibility (LLM, cached)","remaining":"3,306 books","filter_type":"LLM, one-time cached","why":"Generalizes past messy OpenLibrary genre tags to find books that actually argue for ideas (vs. reference works, cookbooks, etc. with no extractable concept).","excluded_genres":["Adventure","Anthologies","Autobiography","Autobiography Memoir","Biography","Biography Memoir","Chick Lit","Childrens","Classics","Collections","Comic Strips","Comics","Contemporary Fiction","Cookbooks","Cooking","Crime","Criticism","Drama","Dystopia","Essays","Fantasy","Fiction","Food","Graphic Novels","Graphic Novels Comics","Guides","Historical Fiction","Horror","Kids","Literary Criticism","Literary Fiction","Magical Realism","Manga","Memoir","Mystery","Picture Books","Plays","Poetry","Reference","Romance","Science Fiction","Short Stories","Short Story Collection","Suspense","Textbooks","Theater","Theatre","Thriller","Verse","Young Adult","Young Readers"]},{"step":"Concept discovery (extraction + recurrence >= 2 + validity)","remaining":"2,555 books / 19,802 concepts","filter_type":"LLM, per book","why":"Most prose is narrative or transitional, not concept-defining (~61% of extraction attempts are rejected); recurrence >= 2 stops a one-off phrase from being mistaken for a real coined framework, and validity screens out generic terms/proper nouns."},{"step":"Originality cutoff (LLM score >= 3/5, infini-gram freq <= 5/B, local-corpus count <= 10)","remaining":"1,439+906 books / 6,344 concepts","filter_type":"3-signal automated cutoff","why":"Strong models scored ~100% on well-known nonfiction concepts before this filter \u2014 a sign the question was testing general world knowledge, not memorization of this specific book."},{"step":"Verification (synthesis + centrality)","remaining":"1,439+774 books / 5,985 concepts","filter_type":"LLM, per concept","why":"Rejects outright rather than falling back to a verbatim question, since synthesis (recombining book-specific ideas in a new way) is the only thing this bank is designed to test."},{"step":"Assembly (dedup + quality + typing)","remaining":"3,518 questions","filter_type":"Automated","why":"Final MCQ construction: distractors, question typing (standard/none-of-above/all-of-above)."},{"step":"Merge/dedupe on question_id","remaining":"3,436 questions","filter_type":"Automated","why":"Removes exact-duplicate questions surfaced by overlapping discovery passes."},{"step":"Final bank (concept_bank_final_combined.jsonl)","remaining":"1,748 books / 3,436 questions","filter_type":"Final","why":"The book-and-question set actually evaluated against models."}],"note":"An earlier round (concept_bank_200_stratified.jsonl, 987 books, models gpt-4o / llama-3.3-70b / gemini-3.1-flash-lite, mixing verbatim+synthesis questions) is superseded by the current 1,748-book synthesis-only bank and is not shown here.","summary_stats":{"current_sample":[{"category":"Book type","trait":"Nonfiction","n":1744,"pct":99.8},{"category":"Book type","trait":"Fiction","n":4,"pct":0.2},{"category":"Books3 status","trait":"Not in Books3","n":1058,"pct":60.5},{"category":"Books3 status","trait":"In Books3","n":690,"pct":39.5},{"category":"Popularity (num_ratings)","trait":"0-10 ratings","n":352,"pct":20.1},{"category":"Popularity (num_ratings)","trait":"10-100 ratings","n":493,"pct":28.2},{"category":"Popularity (num_ratings)","trait":"100-1,000 ratings","n":529,"pct":30.3},{"category":"Popularity (num_ratings)","trait":"1,000+ ratings","n":374,"pct":21.4},{"category":"Publication era","trait":"Pre-1950","n":42,"pct":2.4},{"category":"Publication era","trait":"1950-1999","n":570,"pct":32.6},{"category":"Publication era","trait":"2000-2009","n":547,"pct":31.3},{"category":"Publication era","trait":"2010-2013 (Books3 peak)","n":446,"pct":25.5},{"category":"Publication era","trait":"2014-2019","n":91,"pct":5.2},{"category":"Publication era","trait":"2020+","n":51,"pct":2.9},{"category":"Top genres (multi-label)","trait":"Nonfiction","n":1129,"pct":64.6},{"category":"Top genres (multi-label)","trait":"Psychology","n":545,"pct":31.2},{"category":"Top genres (multi-label)","trait":"Self Help","n":416,"pct":23.8},{"category":"Top genres (multi-label)","trait":"Philosophy","n":404,"pct":23.1},{"category":"Top genres (multi-label)","trait":"Business","n":388,"pct":22.2},{"category":"Top genres (multi-label)","trait":"Science","n":326,"pct":18.6},{"category":"Top genres (multi-label)","trait":"Health","n":167,"pct":9.6},{"category":"Top genres (multi-label)","trait":"Personal Development","n":166,"pct":9.5},{"category":"Top genres (multi-label)","trait":"Sociology","n":162,"pct":9.3},{"category":"Top genres (multi-label)","trait":"Economics","n":144,"pct":8.2},{"category":"Top genres (multi-label)","trait":"Reference","n":136,"pct":7.8},{"category":"Top genres (multi-label)","trait":"Textbooks","n":128,"pct":7.3}]},"results":[{"model":"gpt-3.5-turbo","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.00669014612776435,"se":0.019876779444498203,"p":0.7364327877451876,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.03532462529215419,"se":0.04390293653844985,"p":0.4210463011294552,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":0.01974683861398674,"se":0.04627637575017869,"p":0.6695866886430744,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":0.020588177391163143,"se":0.046334694923737665,"p":0.6567996088143468,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.06908359415367445,"se":0.01890945994261967,"p":0.0002588026976188949,"stars":"***","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":0.04253661412223586,"se":0.04158281038893531,"p":0.3063374200714051,"stars":"","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":0.015513532539107144,"se":0.04247123968006074,"p":0.7149087660613382,"stars":"","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":0.011839878368024248,"se":0.042461489419878234,"p":0.7803691221773763,"stars":"","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"gpt-4o","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.00535946829897653,"se":0.01635230368944311,"p":0.7431006596833347,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.00623665293205633,"se":0.036054086888072184,"p":0.8626667780820645,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":-0.009963774601954967,"se":0.03777297116820685,"p":0.7919490331324539,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":-0.008321519964948898,"se":0.037784414201971435,"p":0.8256867071533571,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.09043171443710446,"se":0.02051946050982602,"p":1.0475440281840541e-05,"stars":"***","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":0.08849812479848884,"se":0.0447770576773324,"p":0.04810760108855483,"stars":"**","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":0.04967600262846261,"se":0.04647097195449057,"p":0.28508388837241805,"stars":"","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":0.04610792255977891,"se":0.046467524120596654,"p":0.32107011139514485,"stars":"","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"claude-3-haiku","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.02708689651033684,"se":0.019541614760417002,"p":0.16571224125370732,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.05631962435493687,"se":0.04331650642012292,"p":0.19353636442493904,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":0.045121092579846866,"se":0.04557701295894888,"p":0.32217573034230895,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":0.04402071266672625,"se":0.045442535801502086,"p":0.3326890911243807,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.045761391348991994,"se":0.019462955242487947,"p":0.01871273750646456,"stars":"**","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":0.00467542184102232,"se":0.04243039018153153,"p":0.912258372335224,"stars":"","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":-0.019204428094151016,"se":0.043903494925553,"p":0.6618041175891218,"stars":"","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":-0.02152082414604317,"se":0.04392737922868237,"p":0.6241917581872525,"stars":"","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"claude-haiku-4.5","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.012854367329792372,"se":0.017599164035879997,"p":0.4651478739820055,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":-0.007389348305498089,"se":0.03861707148783846,"p":0.8482519649829694,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":-0.026490985780302623,"se":0.04034356520254562,"p":0.5114158162115057,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":-0.026373562008590312,"se":0.04047303095581074,"p":0.514637963102061,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.0458804077025097,"se":0.019374433521888328,"p":0.01788017226745125,"stars":"**","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":-0.0687599952124569,"se":0.041466662778279616,"p":0.09727722647695858,"stars":"*","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":-0.1112298378805443,"se":0.04226106898045196,"p":0.00848915231206715,"stars":"***","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":-0.11529764415886401,"se":0.04220417603469026,"p":0.006296999852505314,"stars":"***","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"deepseek-v4-pro","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.010173883037777328,"se":0.014691856166720594,"p":0.48863310086641254,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.010976592813719321,"se":0.0320699605454323,"p":0.7321475361461733,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":-0.0012615584605670804,"se":0.0337613038789184,"p":0.9701923887563144,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":-0.0025028535295383847,"se":0.03381052800970067,"p":0.9409898056605492,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.026535091443446845,"se":0.020633115931261697,"p":0.1984277654241252,"stars":"","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":-0.024694125428274205,"se":0.045090001279452695,"p":0.5839233214156436,"stars":"","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":-0.062276910097903926,"se":0.04657083871137596,"p":0.18114065332585128,"stars":"","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":-0.06749601026307506,"se":0.046544121916933655,"p":0.1470163839242833,"stars":"","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"gpt-5.4-mini","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.0031616257088848704,"se":0.016081717766464193,"p":0.8441425173961647,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.022741694722449246,"se":0.03515727870055232,"p":0.5177251808715628,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":0.019605511387588592,"se":0.03701746631286143,"p":0.5963694135398911,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":0.01941269539493007,"se":0.03709824311651447,"p":0.600780790872864,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.03319962218075376,"se":0.02040415558737187,"p":0.10371564640087691,"stars":"","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":-0.07046456127670186,"se":0.044818453259746496,"p":0.1158990592114244,"stars":"","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":-0.09718292762799008,"se":0.046611951193535284,"p":0.03707512483384168,"stars":"**","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":-0.10086091854117729,"se":0.04664311967172659,"p":0.03058762743461063,"stars":"**","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"llama-3.1-8b","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.04500307558436072,"se":0.019629443858877865,"p":0.02186924609729967,"stars":"**","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.060717598913964554,"se":0.04326933907313728,"p":0.16054299917326942,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":0.04891475979378157,"se":0.04570494630938022,"p":0.28451623591429165,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":0.046209186314667416,"se":0.045523013289737374,"p":0.3100709823028065,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.052534426639547493,"se":0.01755632180885298,"p":0.002768507072691501,"stars":"***","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":0.0832285881065642,"se":0.03868381175601449,"p":0.03143600757687959,"stars":"**","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":0.07334428230818002,"se":0.04058514761970634,"p":0.07073569599168272,"stars":"*","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":0.06767714269527025,"se":0.04013259365037689,"p":0.09173059598550504,"stars":"*","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"llama-3.1-70b","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.004197047439013453,"se":0.01859870666889789,"p":0.8214632240105116,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.0194367259893502,"se":0.0410948714087847,"p":0.6362331127812366,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":0.006263603243270133,"se":0.043249487885599805,"p":0.8848491132693668,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":0.007164166373142322,"se":0.043284888569868195,"p":0.8685410437119425,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.06533811202274753,"se":0.019765805579562836,"p":0.0009476874258376164,"stars":"***","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":-0.0016816627211113655,"se":0.04299608228354602,"p":0.9688010945858105,"stars":"","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":-0.02263293385635201,"se":0.04440421664275013,"p":0.6102600018998965,"stars":"","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":-0.02719407221377068,"se":0.04419186740086718,"p":0.5383145408077357,"stars":"","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]},{"model":"gemini-3.1-flash-lite","status":"complete","outcomes":[{"n_books":1748,"n_items":3436,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.014368680049209017,"se":0.01406323166674156,"p":0.30691361101255843,"stars":"","fstat":null,"n":1748},{"spec":"2","label":"IV","coef":0.0018138621179790704,"se":0.030647633654929583,"p":0.9528052268345979,"stars":"","fstat":470.3422330121732,"n":1748},{"spec":"3","label":"IV + pop FE","coef":-0.0020366262178921346,"se":0.032273572872110315,"p":0.9496828335523944,"stars":"","fstat":413.69597627222527,"n":1748},{"spec":"4","label":"IV + pop FE + controls","coef":0.0007155298384553532,"se":0.03221884270779035,"p":0.9822816949270863,"stars":"","fstat":411.9042985756663,"n":1748}]},"outcome":"synthesis_mcq"},{"n_books":1739,"n_items":3371,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.03400943231670953,"se":0.02061362570584862,"p":0.09897320304880156,"stars":"*","fstat":null,"n":1739},{"spec":"2","label":"IV","coef":0.0018376673060807036,"se":0.04481181014107709,"p":0.9672890805847396,"stars":"","fstat":469.89059334921734,"n":1739},{"spec":"3","label":"IV + pop FE","coef":-0.036606108156389094,"se":0.046283047702390806,"p":0.4289916845197248,"stars":"","fstat":415.35983853377826,"n":1739},{"spec":"4","label":"IV + pop FE + controls","coef":-0.04064589714177247,"se":0.04626315423970133,"p":0.3796288668860164,"stars":"","fstat":413.55487992494284,"n":1739}]},"outcome":"synthesis_oe"}]}],"n_books_total":1748},"character-test":{"funnel":[{"step":"Total rows in book-level.csv","remaining":"12,916 books","filter_type":"\u2014","why":"Starting point."},{"step":"fiction == \"1.0\"","remaining":"2,808 books","filter_type":"Non-LLM metadata","why":"Nonfiction has no invented characters taking plot actions \u2014 that's concept-test's job instead."},{"step":"Dedup by book_id","remaining":"2,808 books","filter_type":"Non-LLM set membership","why":"Prevents double-counting a book."},{"step":"Full-text .txt exists","remaining":"2,808 books","filter_type":"Filesystem check","why":"No text = no source to ground a question."},{"step":"num_ratings in range","remaining":"2,808 books","filter_type":"Numeric comparison","why":"Enables stratified sampling across popularity \u2014 the whole point of the contamination analysis."},{"step":"Not non-narrative genre (keyword)","remaining":"2,798 books","filter_type":"Keyword match","why":"Cheap free screen before spending LLM budget."},{"step":"genre_eligibility (LLM, cached)","remaining":"1,123 books","filter_type":"LLM, one-time cached","why":"Main suitability gate \u2014 generalizes past messy OpenLibrary genre tags.","excluded_genres":["American History","Ancient History","Anthologies","Autobiography","Autobiography Memoir","Biography","Biography Memoir","Collections","Comic Strips","Comics","Cookbooks","Criticism","Drama","Essays","European History","Graphic Novels","Graphic Novels Comics","Guides","Literary Criticism","Manga","Memoir","Military History","Naval History","Nonfiction","Picture Books","Plays","Poetry","Reference","Self Help","Short Stories","Short Story Collection","Textbooks","Theater","Theatre","Verse"]},{"step":"Not companion/critical volume","remaining":"1,121 books","filter_type":"Regex","why":"Prevents mistaking criticism about a book for the narrative itself."},{"step":"Dedup by normalized title","remaining":"1,068 books","filter_type":"String normalization","why":"Stops multiple editions inflating sample size."},{"step":"Not non-English","remaining":"1,042 books","filter_type":"Function-word heuristic","why":"Extraction must match the language models are tested in."},{"step":"BookNLP found character candidates","remaining":"1,040 books / 15,348 characters","filter_type":"Parses pre-built output","why":"Pivot from book-level to character-level filtering."},{"step":"Validity check (verify_is_character)","remaining":"3,395 characters rejected","filter_type":"LLM, per character","why":"Core contamination guard \u2014 screens out real-world/historical people so accuracy can't come from general world knowledge."},{"step":"Passage selection","remaining":"786 characters dropped","filter_type":"Regex / density scoring","why":"Ensures the candidate scene has something happening, not incidental mention."},{"step":"Event extraction","remaining":"4,840 rejected","filter_type":"LLM, per character","why":"Enforces the answer is text-stated and specific, not a genre cliche \u2014 the single largest rejection category."},{"step":"Book yield >= 3 events","remaining":"802 books / 5,638 questions","filter_type":"Aggregate outcome","why":"Discards a whole book if too few events survive, treating low yield as a red flag for a book-level problem rather than keeping a thin, noisy book."}],"note":"As of the 2026-07-19 update, all 9 models have MCQ results on the full 802-book / 5,176-question bank. Open-ended coverage is likewise full (802 books) for every model except deepseek-v4-pro, whose open-ended run still only covers the 63-book / 241-question QC-scale subsample (mcq_bank_qc100.jsonl rows, evaluated in-place inside mcq_bank_full.jsonl) -- visible as a much smaller n_books on its own outcome row below. Each model's top-level status reflects its best-covered outcome, so check the per-outcome rows for the deepseek-v4-pro exception rather than relying on the status pill alone. Summary stats reflect the full 802-book bank.","summary_stats":{"full_bank":[{"category":"Book type","trait":"Fiction","n":802,"pct":100.0},{"category":"Books3 status","trait":"In Books3","n":739,"pct":92.1},{"category":"Books3 status","trait":"Not in Books3","n":63,"pct":7.9},{"category":"Popularity (num_ratings)","trait":"0-10 ratings","n":6,"pct":0.7},{"category":"Popularity (num_ratings)","trait":"10-100 ratings","n":19,"pct":2.4},{"category":"Popularity (num_ratings)","trait":"100-1,000 ratings","n":97,"pct":12.1},{"category":"Popularity (num_ratings)","trait":"1,000+ ratings","n":680,"pct":84.8},{"category":"Publication era","trait":"Pre-1950","n":106,"pct":13.2},{"category":"Publication era","trait":"1950-1999","n":151,"pct":18.8},{"category":"Publication era","trait":"2000-2009","n":244,"pct":30.4},{"category":"Publication era","trait":"2010-2013 (Books3 peak)","n":296,"pct":36.9},{"category":"Publication era","trait":"2014-2019","n":3,"pct":0.4},{"category":"Publication era","trait":"2020+","n":2,"pct":0.2},{"category":"Top genres (multi-label)","trait":"Fiction","n":723,"pct":90.1},{"category":"Top genres (multi-label)","trait":"Fantasy","n":268,"pct":33.4},{"category":"Top genres (multi-label)","trait":"Mystery","n":232,"pct":28.9},{"category":"Top genres (multi-label)","trait":"Romance","n":230,"pct":28.7},{"category":"Top genres (multi-label)","trait":"Historical Fiction","n":203,"pct":25.3},{"category":"Top genres (multi-label)","trait":"Classics","n":168,"pct":20.9},{"category":"Top genres (multi-label)","trait":"Science Fiction","n":160,"pct":20.0},{"category":"Top genres (multi-label)","trait":"Novels","n":136,"pct":17.0},{"category":"Top genres (multi-label)","trait":"Young Adult","n":130,"pct":16.2},{"category":"Top genres (multi-label)","trait":"Thriller","n":126,"pct":15.7},{"category":"Top genres (multi-label)","trait":"Contemporary","n":118,"pct":14.7},{"category":"Top genres (multi-label)","trait":"Literature","n":118,"pct":14.7}]},"results":[{"model":"gpt-3.5-turbo","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.005780833603180834,"se":0.02736518590350081,"p":0.8326939621604695,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.2535900962398472,"se":0.10470907692980097,"p":0.01544155325561447,"stars":"**","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.29163716560073283,"se":0.1117076567920318,"p":0.009035242313792713,"stars":"***","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.2977331851998386,"se":0.1127170997546499,"p":0.008255933782973734,"stars":"***","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.036063526343183785,"se":0.02379583075113817,"p":0.12963578292808367,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.061374547906304144,"se":0.0712367615084159,"p":0.3889312077544671,"stars":"","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.07246495319693658,"se":0.07638647520037278,"p":0.34279250102551706,"stars":"","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.039921193995089865,"se":0.07562600789739092,"p":0.597585041281179,"stars":"","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]},{"model":"gpt-4o","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.032475771168664534,"se":0.028716361731837,"p":0.25809076748800985,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.4385809811100927,"se":0.12151563735733607,"p":0.00030707706140908897,"stars":"***","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.4941833704528662,"se":0.1293653172143695,"p":0.00013341880988004817,"stars":"***","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.4885653414598181,"se":0.1301848922323184,"p":0.00017483028826514868,"stars":"***","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.044472795701934596,"se":0.024979591525523214,"p":0.07501621154327134,"stars":"*","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.3198968867605707,"se":0.08596875677669767,"p":0.00019837015326396035,"stars":"***","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.3508966777756122,"se":0.09255632972053024,"p":0.00014993994647927167,"stars":"***","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.30897331959694085,"se":0.08978424583016877,"p":0.0005789550073271865,"stars":"***","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]},{"model":"claude-3-haiku","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.027890214534006127,"se":0.028319756237474156,"p":0.3247063849936477,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.1790478925570369,"se":0.09631908840134143,"p":0.06304081495772196,"stars":"*","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.18887375440725762,"se":0.10207562499306974,"p":0.0642657709753518,"stars":"*","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.16819726475394248,"se":0.10174288118848085,"p":0.09829829825619596,"stars":"*","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.02234268232882871,"se":0.020309101193237086,"p":0.2712748229889004,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.16935721706945017,"se":0.0761929640589076,"p":0.02623327666899744,"stars":"**","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.18397043577384764,"se":0.0813549415587163,"p":0.023738779823735623,"stars":"**","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.14953347606145506,"se":0.0800824106204084,"p":0.06186739039753619,"stars":"*","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]},{"model":"claude-haiku-4.5","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.039815214700838944,"se":0.03404018584975079,"p":0.24214053056751994,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.5260969730633178,"se":0.13680491550153037,"p":0.00012025784215197177,"stars":"***","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.6250823494579336,"se":0.14417227878542926,"p":1.4532173964854067e-05,"stars":"***","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.6018746452913675,"se":0.14432980643761714,"p":3.044204765734193e-05,"stars":"***","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.0034298505011823334,"se":0.013232859291846113,"p":0.7954871478925153,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.22820526652994833,"se":0.05104778688046677,"p":7.806457427372848e-06,"stars":"***","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.25542073642684526,"se":0.055643764933007246,"p":4.426413143798769e-06,"stars":"***","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.21635113004291373,"se":0.050554340285042715,"p":1.8724987933760318e-05,"stars":"***","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]},{"model":"deepseek-v4-pro","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.01940989981134416,"se":0.026034347692259277,"p":0.45593948472283996,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.16149120282554463,"se":0.10269473302909284,"p":0.11582621098380019,"stars":"","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.18289135148211955,"se":0.10895474152507613,"p":0.09323016554918873,"stars":"*","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.16395275760035588,"se":0.10914790746657009,"p":0.13306729672126538,"stars":"","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":63,"n_items":241,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.021913580246913505,"se":0.10975814368373932,"p":0.8417517063241418,"stars":"","fstat":null,"n":63},{"spec":"2","label":"IV","coef":-0.24754760777506046,"se":0.23786259872220805,"p":0.298006993666722,"stars":"","fstat":11.731276881554443,"n":63},{"spec":"3","label":"IV + pop FE","coef":-0.22637887675111368,"se":0.2680144553963781,"p":0.39830531053398555,"stars":"","fstat":8.389849750258492,"n":63},{"spec":"4","label":"IV + pop FE + controls","coef":-0.44332452574990633,"se":0.37554758102443325,"p":0.23781135313889834,"stars":"","fstat":5.260069676036567,"n":63}]},"outcome":"standard_oe"}]},{"model":"gpt-5.4-mini","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.03438201085762082,"se":0.03163398028433425,"p":0.2770944520081807,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.12973320752851691,"se":0.10639224869033674,"p":0.2226977604196385,"stars":"","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.13828479614188183,"se":0.1131538513582411,"p":0.22167156948826872,"stars":"","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.15228708264604052,"se":0.1136700180894258,"p":0.1803332855678792,"stars":"","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.023220254053426034,"se":0.026138247491306908,"p":0.374345478175537,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.12974636461482092,"se":0.08074621475643265,"p":0.10808915345022996,"stars":"","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.14210636494958884,"se":0.08667617964339276,"p":0.10110732585042737,"stars":"","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.12467847112970354,"se":0.08628681341791239,"p":0.14847733442561606,"stars":"","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]},{"model":"llama-3.1-8b","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.010418679761098566,"se":0.02837962412633345,"p":0.7135307670501821,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.07650218916985807,"se":0.10310857288030571,"p":0.4581130259178774,"stars":"","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.12053231489103311,"se":0.10854855542443631,"p":0.26682670239579354,"stars":"","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.11292357016951371,"se":0.10894907348325622,"p":0.2999781176318428,"stars":"","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.0028481627247657583,"se":0.014193483614680738,"p":0.8409590229442961,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":0.012351752276677175,"se":0.0538714539647909,"p":0.8186497778623592,"stars":"","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":0.007773132416689421,"se":0.05714904371552285,"p":0.8918093504553593,"stars":"","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":0.00271023933197867,"se":0.05763272640247175,"p":0.9624924675505546,"stars":"","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]},{"model":"llama-3.1-70b","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.012526586340942315,"se":0.03132252959347892,"p":0.6892135525144789,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.244836187883692,"se":0.110298591891502,"p":0.02643519557409868,"stars":"**","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.26766128309673576,"se":0.11707014877278675,"p":0.022234815347700554,"stars":"**","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.2536011091957846,"se":0.1167551916871622,"p":0.02984995708795557,"stars":"**","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.0046138395854874534,"se":0.020841604747857144,"p":0.824799360821382,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.15651549737350123,"se":0.06564310606582213,"p":0.017109776572471036,"stars":"**","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.17383112847351434,"se":0.07022736602158657,"p":0.013313847668889656,"stars":"**","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.13946114778268281,"se":0.06817168358350692,"p":0.04078252435161467,"stars":"**","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]},{"model":"gemini-3.1-flash-lite","status":"complete (full bank)","outcomes":[{"n_books":802,"n_items":5176,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.017063961865496247,"se":0.02557899403639191,"p":0.5047028929855777,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.21444104730991853,"se":0.0928504173971981,"p":0.020914055924413644,"stars":"**","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.22242521068650944,"se":0.09862461628802835,"p":0.02411634048519362,"stars":"**","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.21303869867666947,"se":0.09875256784095574,"p":0.030982467274364378,"stars":"**","fstat":64.06493168351369,"n":802}]},"outcome":"standard_mcq"},{"n_books":802,"n_items":5021,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":-0.005599775892642938,"se":0.01709803006876313,"p":0.7432821778798502,"stars":"","fstat":null,"n":802},{"spec":"2","label":"IV","coef":-0.25518032598005647,"se":0.07354982498917091,"p":0.0005214489653153631,"stars":"***","fstat":72.99702241427703,"n":802},{"spec":"3","label":"IV + pop FE","coef":-0.2785035333191379,"se":0.08011225614431253,"p":0.0005081632862562468,"stars":"***","fstat":68.90900846577877,"n":802},{"spec":"4","label":"IV + pop FE + controls","coef":-0.23304996669564648,"se":0.07543434323975247,"p":0.0020053340759866867,"stars":"***","fstat":64.06493168351369,"n":802}]},"outcome":"standard_oe"}]}],"n_books_total":802},"text-extraction":{"funnel":[{"step":"Book has a full-text .txt file","remaining":"\u2014","filter_type":"Filesystem check","why":"Extraction needs an actual passage to test against; unlike concept/character-test, both fiction and nonfiction are valid targets since no narrative or argumentative structure is required."},{"step":"Word count >= ~3,000 words after trimming","remaining":"\u2014","filter_type":"Numeric threshold","why":"Guarantees enough interior text to sample a 50-word prefix/suffix pair away from front matter."},{"step":"Passage windows drawn from the 25th-75th percentile of word count","remaining":"\u2014","filter_type":"Positional heuristic","why":"Avoids title pages, tables of contents, and back-matter (indices, ads) that would make for a degenerate or unrepresentative extraction test."},{"step":"Stratified by in_books3 x popularity band (4 bands: 0-9 / 10-99 / 100-999 / 1000+)","remaining":"\u2014","filter_type":"Stratified sampling (\"books3pop4\")","why":"Preserves the Books3 x popularity cross-tab this task's headline analysis needs \u2014 same rationale as name-cloze's incremental design."},{"step":"Final random sample","remaining":"971 books / 4,855 passage-pairs (5 pairs/book)","filter_type":"Final","why":"The ~1,000-book random sample actually tested \u2014 deliberately the least-filtered of the four tasks, to measure raw extractability without a genre-suitability confound."}],"note":"gpt-5.5 has complete coverage (4,855/4,855 pairs) on the canonical 1,000-book sample. gpt-4o and gpt-4o-mini have results only on smaller, earlier pilot tiers (200/2,925/30 pairs, not shown here since they don't share the canonical sample). No other model \u2014 and no Claude model at all \u2014 has been run on this task yet. No LLM-judge scores exist yet (all runs used --skip-judge).","summary_stats":{"current_sample":[{"category":"Book type","trait":"Nonfiction","n":835,"pct":83.4},{"category":"Book type","trait":"Fiction","n":110,"pct":11.0},{"category":"Book type","trait":"Unclassified","n":56,"pct":5.6},{"category":"Books3 status","trait":"In Books3","n":501,"pct":50.0},{"category":"Books3 status","trait":"Not in Books3","n":500,"pct":50.0},{"category":"Popularity (num_ratings)","trait":"0-10 ratings","n":258,"pct":25.8},{"category":"Popularity (num_ratings)","trait":"10-100 ratings","n":246,"pct":24.6},{"category":"Popularity (num_ratings)","trait":"100-1,000 ratings","n":244,"pct":24.4},{"category":"Popularity (num_ratings)","trait":"1,000+ ratings","n":253,"pct":25.3},{"category":"Publication era","trait":"Pre-1950","n":62,"pct":6.2},{"category":"Publication era","trait":"1950-1999","n":334,"pct":33.4},{"category":"Publication era","trait":"2000-2009","n":272,"pct":27.2},{"category":"Publication era","trait":"2010-2013 (Books3 peak)","n":268,"pct":26.8},{"category":"Publication era","trait":"2014-2019","n":42,"pct":4.2},{"category":"Publication era","trait":"2020+","n":23,"pct":2.3},{"category":"Top genres (multi-label)","trait":"Nonfiction","n":529,"pct":52.8},{"category":"Top genres (multi-label)","trait":"History","n":241,"pct":24.1},{"category":"Top genres (multi-label)","trait":"Biography","n":109,"pct":10.9},{"category":"Top genres (multi-label)","trait":"Science","n":95,"pct":9.5},{"category":"Top genres (multi-label)","trait":"Philosophy","n":91,"pct":9.1},{"category":"Top genres (multi-label)","trait":"Fiction","n":89,"pct":8.9},{"category":"Top genres (multi-label)","trait":"Politics","n":84,"pct":8.4},{"category":"Top genres (multi-label)","trait":"Reference","n":79,"pct":7.9},{"category":"Top genres (multi-label)","trait":"Psychology","n":73,"pct":7.3},{"category":"Top genres (multi-label)","trait":"Memoir","n":62,"pct":6.2},{"category":"Top genres (multi-label)","trait":"Classics","n":55,"pct":5.5},{"category":"Top genres (multi-label)","trait":"Business","n":55,"pct":5.5}]},"results":[{"model":"gpt-5.5","status":"complete","metrics":[{"n_books":1001,"n_items":5005,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.0011968063872255475,"se":0.0010549814381337224,"p":0.25661271305474,"stars":"","fstat":null,"n":1001},{"spec":"2","label":"IV","coef":-0.0033715833154098337,"se":0.0018086234562299916,"p":0.06229770080626351,"stars":"*","fstat":330.17757768155167,"n":1001},{"spec":"3","label":"IV + pop FE","coef":-0.003155490814641897,"se":0.0016530215481833034,"p":0.056272028485993664,"stars":"*","fstat":332.62371511459867,"n":1001},{"spec":"4","label":"IV + pop FE + controls","coef":-0.0016126568549095048,"se":0.0011933364185175823,"p":0.17657215801014203,"stars":"","fstat":328.771161153099,"n":1001}]},"metric":"verbatim_exact_match"},{"n_books":1001,"n_items":5005,"regressions":{"ok":true,"reason":null,"specs":[{"spec":"1","label":"OLS","coef":0.0051590419161677,"se":0.003631793868414744,"p":0.15545586240673326,"stars":"","fstat":null,"n":1001},{"spec":"2","label":"IV","coef":-0.011904598930636223,"se":0.006979592483312446,"p":0.08807708080617416,"stars":"*","fstat":330.17757768155167,"n":1001},{"spec":"3","label":"IV + pop FE","coef":-0.011523590317695287,"se":0.0068608259811674,"p":0.09303099623880651,"stars":"*","fstat":332.62371511459867,"n":1001},{"spec":"4","label":"IV + pop FE + controls","coef":-0.008423609386915998,"se":0.006705827157035432,"p":0.20905701754217265,"stars":"","fstat":328.771161153099,"n":1001}]},"metric":"word_edit_similarity"}]}],"n_books_total":1001},"books3-demand":{"funnel":[{"step":"SPL checkout rows, 2006-2025 (Seattle Open Data \"Checkouts by Title\")","remaining":"45,821,586 rows","filter_type":"Source data","why":"Full public checkout export."},{"step":"Filtered to checkoutyear 2019-2025 (matches Keepa panel window)","remaining":"14,429,693 rows","filter_type":"Date filter","why":"Keeps only the years overlapping the Keepa sales-rank panel and the Books3/ChatGPT treatment window."},{"step":"Split by ISBN presence (ISBN only populated 2022+ in SPL's export)","remaining":"6,512,912 rows w/ ISBN (31,175 matched a book_id) / 7,916,781 without","filter_type":"Data availability","why":"Direct ISBN join only recovers 2022-2025; earlier years need fuzzy matching."},{"step":"ISBN-less rows deduped to distinct (title, creator) candidates","remaining":"716,413 candidates","filter_type":"Dedup","why":"Collapses repeated monthly rows of the same title before fuzzy matching, and bounds the matching problem to a tractable size."},{"step":"Fuzzy title/author match (blocked by author surname, calibrated threshold)","remaining":"7,887 accepted matches","filter_type":"Calibrated fuzzy match (rapidfuzz)","why":"Threshold chosen to hit ~95% precision, measured by holding out ISBN-confirmed books and checking whether title/author alone would have found them (82.9% recall at that threshold)."},{"step":"Combined with direct ISBN matches -> total matched books","remaining":"8,242 books (63.8% of 12,916)","filter_type":"Union","why":"Final checkout-demand sample. Matching is non-random -- skews toward popular, recent, fiction titles (see summary stats)."},{"step":"Restricted to books also present in the Keepa sales-rank panel","remaining":"8,124 books","filter_type":"Sample intersection","why":"The comparison below needs the identical book sample on both sides, not just the same treatment/instrument."}],"note":"Both regressions use the same design: treatment = books3, instrument = shares (a book's share of the Books3 corpus by publication year), Post cutoff = Nov 2022 (ChatGPT launch), book+month fixed effects where the spec is a panel. Sign convention differs by outcome: for Keepa sales rank, a positive coefficient means the book sells WORSE post-ChatGPT (substitution-consistent); for SPL checkouts, positive means MORE checkouts, so a substitution story predicts a NEGATIVE checkout coefficient. Checkout data itself only extends to Feb 2025 (a limit of SPL's current data export, not a chosen cutoff). 8,124 books present in both the SPL-checkout match and the Keepa sales-rank panel (97% of the 8,242 total checkout-matched books). Treatment = books3, instrument = shares (pub-year Books3-exposure share), Post cutoff = Nov 2022 (ChatGPT launch).","outcomes":[{"source":"Keepa (Amazon sales rank)","text":"Y_it = log(salesrank_it), the \"min rank per month\" variant: the lower (better-selling) of that book's paperback and hardcover median monthly Amazon rank. Panel is book_id x month_year, Jan 2019 - Dec 2025 (84 months), taken directly from the precomputed dv_min_rank_month_year column in keepa-analysis/data/keepa_salesrank_long.csv. Lower rank = more sales, so this is a log-rank outcome, not a log-sales outcome -- the sign convention below follows from that."},{"source":"SPL checkouts","text":"Y_it = log(1 + checkouts_it): checkouts_it is that book's total monthly SPL checkout count, summed across every matched format/edition (both direct-ISBN and fuzzy-matched rows). Panel is book_id x month_year, Jan 2019 - Feb 2025 (74 months -- SPL's export currently stops there, not a chosen cutoff). log1p (log(1+x) rather than log(x)) specifically because, unlike sales rank, checkout counts are genuinely zero in most book-months. Zero-filled: any month absent from the matched-checkout export is treated as a true zero, not missing data, since the matching pipeline only ever writes a row when >=1 checkout occurred that month -- averaging over only the observed months instead would overstate demand for infrequently-checked-out books."}],"equations":[{"label":"1. Panel IV-TWFE (headline spec)","equation":"log(Y<sub>it</sub>) = &alpha;<sub>i</sub> + &lambda;<sub>t</sub> + &beta;&middot;W<sub>it</sub> + &epsilon;<sub>it</sub>","note":"W<sub>it</sub> = D<sub>i</sub> &times; Post<sub>t</sub> (endogenous: books3 &times; post-Nov-2022 indicator), instrumented by Z<sub>it</sub> = shares<sub>i</sub> &times; Post<sub>t</sub>. &alpha;<sub>i</sub> = book fixed effects, &lambda;<sub>t</sub> = month fixed effects, both absorbed via alternating-projection (FWL) demeaning before 2SLS. SEs clustered by book. Identical equation for both outcomes -- only Y<sub>it</sub> differs."},{"label":"2. + popularity &times; Post controls","equation":"log(Y<sub>it</sub>) = &alpha;<sub>i</sub> + &lambda;<sub>t</sub> + &beta;&middot;W<sub>it</sub> + &sum;<sub>k</sub> &gamma;<sub>k</sub>&middot;(popbin<sub>k,i</sub> &times; Post<sub>t</sub>) + &epsilon;<sub>it</sub>","note":"Same as (1), adding an interaction of Post with each Goodreads popularity-bin dummy (k &isin; {10-100, 100-1,000, 1,000+ ratings}, reference = 0-10) as additional exogenous regressors -- tests whether the effect is really books3, not just popular books trending differently after ChatGPT."},{"label":"3. Cross-sectional IV (collapsed panel)","equation":"&Delta;Y<sub>i</sub> = &alpha; + &beta;&middot;D<sub>i</sub> + &sum;<sub>k</sub> &gamma;<sub>k</sub>&middot;popbin<sub>k,i</sub> + &epsilon;<sub>i</sub>, &nbsp; &nbsp; &Delta;Y<sub>i</sub> = &#7812;<sub>i</sub><sup>post</sup> &minus; &#7812;<sub>i</sub><sup>pre</sup>","note":"Collapses the panel to one row per book (post-mean minus pre-mean, pre = Jan 2019-Oct 2022, post = Nov 2022 onward), then OLS and IV (D<sub>i</sub> instrumented by shares<sub>i</sub>) with popularity-bin dummies entering in levels (no Post interaction needed -- differencing already removes each book's own baseline level, so no book or month fixed effects are required here)."},{"label":"4. Callaway-Sant'Anna (CS) event-study DiD","equation":"ATT(g,t) &nbsp;&rarr;&nbsp; aggregated to overall ATT = E[Y<sub>it</sub>(g) &minus; Y<sub>it</sub>(0) | G<sub>i</sub>=g]","note":"Doubly-robust, non-parametric DiD (Callaway &amp; Sant'Anna 2021) against never-treated (non-books3) controls; one treatment cohort here (all books3 books treated at g = Nov 2022). Inference via 199-draw multiplier bootstrap, clustered by book. Deliberately NOT instrumented -- this is a plain treated-vs-control comparison, included as a check on whether the IV specs' identifying assumptions (relevance + exclusion of shares) are doing real work: a big gap between this and spec (1) is worth treating as a flag, not noise."}],"summary_stats":{"matched_sample_n8124":[{"category":"Book type","trait":"Nonfiction","n":6549,"pct":80.6},{"category":"Book type","trait":"Fiction","n":1342,"pct":16.5},{"category":"Book type","trait":"Unclassified","n":233,"pct":2.9},{"category":"Books3 status","trait":"In Books3","n":4727,"pct":58.2},{"category":"Books3 status","trait":"Not in Books3","n":3397,"pct":41.8},{"category":"Popularity (num_ratings)","trait":"0-10 ratings","n":1268,"pct":15.6},{"category":"Popularity (num_ratings)","trait":"10-100 ratings","n":1975,"pct":24.3},{"category":"Popularity (num_ratings)","trait":"100-1,000 ratings","n":2274,"pct":28.0},{"category":"Popularity (num_ratings)","trait":"1,000+ ratings","n":2607,"pct":32.1},{"category":"Publication era","trait":"Pre-1950","n":561,"pct":6.9},{"category":"Publication era","trait":"1950-1999","n":2267,"pct":27.9},{"category":"Publication era","trait":"2000-2009","n":2317,"pct":28.5},{"category":"Publication era","trait":"2010-2013 (Books3 peak)","n":2498,"pct":30.7},{"category":"Publication era","trait":"2014-2019","n":341,"pct":4.2},{"category":"Publication era","trait":"2020+","n":140,"pct":1.7},{"category":"Top genres (multi-label)","trait":"Nonfiction","n":4693,"pct":57.8},{"category":"Top genres (multi-label)","trait":"History","n":2312,"pct":28.5},{"category":"Top genres (multi-label)","trait":"Fiction","n":1169,"pct":14.4},{"category":"Top genres (multi-label)","trait":"Biography","n":1019,"pct":12.5},{"category":"Top genres (multi-label)","trait":"Politics","n":860,"pct":10.6},{"category":"Top genres (multi-label)","trait":"Philosophy","n":832,"pct":10.2},{"category":"Top genres (multi-label)","trait":"Science","n":737,"pct":9.1},{"category":"Top genres (multi-label)","trait":"Psychology","n":638,"pct":7.9},{"category":"Top genres (multi-label)","trait":"Memoir","n":586,"pct":7.2},{"category":"Top genres (multi-label)","trait":"Classics","n":575,"pct":7.1},{"category":"Top genres (multi-label)","trait":"Reference","n":560,"pct":6.9},{"category":"Top genres (multi-label)","trait":"Self Help","n":547,"pct":6.7}]},"headline":"Keepa's IV-TWFE shows a large, highly significant positive effect (substitution-consistent). The checkout IV-TWFE is a flat null -- small and insignificant across every estimator, not just a weaker version of the same effect. Plausible explanation: borrowing a library book is free, so LLM-substitution for the paid-purchase decision doesn't necessarily extend to the free-borrow decision.","comparison":[{"spec":"OLS-TWFE","keepa":{"coef":-0.0365666408465596,"se":0.01087330620578884,"p":0.0007710775966542904,"f_stat":null,"n_books":8005},"checkout":{"coef":0.03390181007160699,"se":0.007796904497860999,"p":1.3731479740819452e-05,"f_stat":null,"n_books":8124}},{"spec":"IV-TWFE","keepa":{"coef":0.2563100837660614,"se":0.026634148164599785,"p":0.0,"f_stat":1785.1535771296128,"n_books":8005},"checkout":{"coef":0.003654172759012694,"se":0.019360204058114384,"p":0.8502914236997137,"f_stat":2142.9998314754803,"n_books":8124}},{"spec":"IV-TWFE + pop x Post","keepa":{"coef":0.2526930294311497,"se":0.027362369824713035,"p":0.0,"f_stat":3788.6197611495786,"n_books":null},"checkout":{"coef":-0.00392416319891592,"se":0.020273174511950928,"p":0.8465170397978259,"f_stat":4623.6644098186825,"n_books":null}},{"spec":"Cross-sectional IV","keepa":{"coef":0.36205120444716066,"se":0.03189969024195528,"p":0.0,"f_stat":1028.2883288665707,"n_books":7615},"checkout":{"coef":-0.003924163198912867,"se":0.020273174511957343,"p":0.8465170397979918,"f_stat":1224.5403096074995,"n_books":8124}},{"spec":"Cross-sectional OLS","keepa":{"coef":0.01879263572811174,"se":0.01640788511204707,"p":0.25206762074248346,"f_stat":null,"n_books":7615},"checkout":{"coef":0.01636380652176178,"se":0.008230818391450184,"p":0.04679906661444733,"f_stat":null,"n_books":8124}},{"spec":"CS-DiD ATT","keepa":{"coef":0.04474207374930403,"se":0.01777019486211398,"p":null,"f_stat":null,"n_books":8005,"ci_lower":0.00991249181956063,"ci_upper":0.07957165567904742,"n_treated":4597,"n_control":3408},"checkout":{"coef":-0.005728575796648178,"se":0.0059789527310116,"p":null,"f_stat":null,"n_books":8124,"ci_lower":-0.017447323149430913,"ci_upper":0.005990171556134559,"n_treated":4687,"n_control":3437}}]}};
+const TASKS = [
+  { id: "name-cloze", label: "Name Cloze" },
+  { id: "concept-test", label: "Concept Test" },
+  { id: "character-test", label: "Character Test" },
+  { id: "text-extraction", label: "Text Extraction" },
+  { id: "books3-demand", label: "Books3 Demand" },
+];
+
+// Main models of interest — covers every naming variant used across tasks
+// (e.g. name-cloze's "gpt-3.5" vs concept/character-test's "gpt-3.5-turbo").
+// Rows for these models sort to the top of each results table and get a
+// light highlight; everything else (pilot/one-off models like claude-opus-4-8,
+// gpt-5.5, claude-sonnet-5) stays below, unhighlighted.
+const MAIN_MODELS = new Set([
+  "gpt-3.5", "gpt-3.5-turbo",
+  "gpt-4o",
+  "claude (legacy)", "claude-3-haiku",
+  "gemini (legacy)",
+  "llama-3-8b", "llama-3.1-8b",
+  "llama-3-70b", "llama-3.1-70b",
+  "claude-haiku-4.5",
+  "deepseek-v4-pro",
+  "gpt-5.4-mini",
+  "gemini-3.1-flash-lite",
+]);
+function isFeatured(model) { return MAIN_MODELS.has(model); }
+function sortFeaturedFirst(results) {
+  return results
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => (isFeatured(b.r.model) - isFeatured(a.r.model)) || (a.i - b.i))
+    .map(x => x.r);
+}
+
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+const loaded = new Set();
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s == null ? '' : String(s);
+  return d.innerHTML;
+}
+
+function fmtNum(n) {
+  if (n == null) return '—';
+  return n.toLocaleString();
+}
+
+function statusPill(status) {
+  if (!status) return '';
+  const cls = status.toLowerCase().includes('progress') ? 'in-progress'
+    : status.toLowerCase().includes('partial') ? 'partial'
+    : status.toLowerCase().includes('not-run') ? 'not-run'
+    : 'complete';
+  return `<span class="pill ${cls}">${esc(status)}</span>`;
+}
+
+TASKS.forEach((t, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+  btn.textContent = t.label;
+  btn.dataset.task = t.id;
+  btn.addEventListener('click', () => selectTab(t.id));
+  tabsEl.appendChild(btn);
+
+  const panel = document.createElement('div');
+  panel.className = 'tab-panel';
+  panel.id = 'panel-' + t.id;
+  panel.hidden = i !== 0;
+  panel.innerHTML = '<div class="loading">Loading…</div>';
+  panelsEl.appendChild(panel);
+});
+
+function selectTab(taskId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.task === taskId));
+  document.querySelectorAll('.tab-panel').forEach(p => p.hidden = p.id !== 'panel-' + taskId);
+  if (!loaded.has(taskId)) loadTask(taskId);
+}
+
+function loadTask(taskId) {
+  loaded.add(taskId);
+  const panel = document.getElementById('panel-' + taskId);
+  const data = SNAPSHOT_DATA[taskId];
+  if (!data) {
+    panel.innerHTML = `<div class="error">No snapshot data for this tab.</div>`;
+    loaded.delete(taskId);
+    return;
+  }
+  try {
+    panel.innerHTML = renderTask(taskId, data);
+  } catch (e) {
+    panel.innerHTML = `<div class="error">Render error: ${esc(String(e))}</div>`;
+  }
+}
+
+function genreDropdown(genres) {
+  if (!genres || !genres.length) return '';
+  const options = genres.map(g => `<option>${esc(g)}</option>`).join('');
+  return `<select class="genre-dropdown" title="Genre tags excluded by this filter">
+    <option selected disabled>${genres.length} excluded genres ▾</option>
+    ${options}
+  </select>`;
+}
+
+function renderFunnel(funnel) {
+  const rows = funnel.map(f => `
+    <tr>
+      <td>${esc(f.step)}${genreDropdown(f.excluded_genres)}</td>
+      <td class="num sec-label">${esc(f.remaining)}</td>
+      <td class="muted">${esc(f.filter_type)}</td>
+      <td>${esc(f.why)}</td>
+    </tr>`).join('');
+  return `
+    <section class="block">
+      <h2>Filtering pipeline</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Remaining</th><th>Filter type</th><th>Why it matters for the paper</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </section>`;
+}
+
+function specCell(spec) {
+  if (!spec) return '<span class="na">—</span>';
+  const se = spec.se != null ? `(${spec.se.toFixed(4)})` : '';
+  const f = spec.fstat != null ? `<br><span class="se">F=${spec.fstat.toFixed(1)}</span>` : '';
+  return `<span class="coef">${spec.coef.toFixed(4)}${esc(spec.stars)}</span><br><span class="se">${se}</span>${f}`;
+}
+
+function renderRegressionRow(labelCells, regressions, rowClass) {
+  const cls = rowClass ? ` class="${rowClass}"` : '';
+  if (!regressions.ok) {
+    return `<tr${cls}>${labelCells}<td class="muted" colspan="5">not enough data (${esc(regressions.reason)})</td></tr>`;
+  }
+  const byLabel = {};
+  regressions.specs.forEach(s => byLabel[s.label] = s);
+  const n = regressions.specs[0] ? regressions.specs[0].n : null;
+  return `<tr${cls}>${labelCells}
+    <td class="num">${fmtNum(n)}</td>
+    <td class="coef-cell">${specCell(byLabel['OLS'])}</td>
+    <td class="coef-cell">${specCell(byLabel['IV'])}</td>
+    <td class="coef-cell">${specCell(byLabel['IV + pop FE'])}</td>
+    <td class="coef-cell">${specCell(byLabel['IV + pop FE + controls'])}</td>
+  </tr>`;
+}
+
+function renderResultsAndRegressions(taskId, data) {
+  let head, rows;
+  const results = sortFeaturedFirst(data.results);
+  if (taskId === 'name-cloze') {
+    head = `<th>Model</th><th>Tier</th><th>Status</th><th>Books</th><th>Items</th><th>N (reg.)</th><th>OLS</th><th>IV</th><th>IV + pop FE</th><th>IV + pop FE + ctrl</th>`;
+    rows = results.map(r => {
+      const labelCells = `<td>${esc(r.model)}</td><td><span class="pill tier">${esc(r.tier)}</span></td><td>${statusPill(r.status)}</td>
+        <td class="num">${fmtNum(r.n_books)}</td><td class="num">${fmtNum(r.n_items)}</td>`;
+      return renderRegressionRow(labelCells, r.regressions, isFeatured(r.model) ? 'featured-row' : '');
+    }).join('');
+  } else {
+    const outcomeKey = taskId === 'text-extraction' ? 'metrics' : 'outcomes';
+    const outcomeLabel = taskId === 'text-extraction' ? 'Metric' : 'Outcome';
+    head = `<th>Model</th><th>${outcomeLabel}</th><th>Status</th><th>Books</th><th>Items</th><th>N (reg.)</th><th>OLS</th><th>IV</th><th>IV + pop FE</th><th>IV + pop FE + ctrl</th>`;
+    rows = results.flatMap(r => {
+      const items = r[outcomeKey] || [];
+      const rowClass = isFeatured(r.model) ? 'featured-row' : '';
+      const cls = rowClass ? ` class="${rowClass}"` : '';
+      if (items.length === 0) {
+        return [`<tr${cls}><td>${esc(r.model)}</td><td class="muted" colspan="9">${statusPill(r.status)}</td></tr>`];
+      }
+      return items.map((o, idx) => {
+        const labelCells = `${idx === 0 ? `<td rowspan="${items.length}">${esc(r.model)}</td>` : ''}
+          <td>${esc(o.outcome || o.metric)}</td><td>${statusPill(r.status)}</td>
+          <td class="num">${fmtNum(o.n_books)}</td><td class="num">${fmtNum(o.n_items)}</td>`;
+        return renderRegressionRow(labelCells, o.regressions, rowClass);
+      });
+    });
+    rows = rows.join('');
+  }
+  return `
+    <section class="block">
+      <h2>Raw results &amp; regressions</h2>
+      <div class="table-wrap">
+        <table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>
+      </div>
+      <div class="block-note">Regression spec ladder: (1) OLS score ~ books3. (2) IV: books3 instrumented by shares (books3's publication-year composition). (3) adds popularity-bucket fixed effects. (4) adds num_reviews / num_ratings / avg_rating controls. Robust (HC1) SEs throughout; stars: * p&lt;.10, ** p&lt;.05, *** p&lt;.01.</div>
+    </section>`;
+}
+
+function renderSummaryStatsGroup(title, rows) {
+  if (!rows || rows.length === 0) return `<div><h3>${esc(title)}</h3><div class="muted" style="font-size:12.5px;">No books in this scope.</div></div>`;
+  let lastCat = null;
+  const trs = rows.map(r => {
+    const catRow = r.category !== lastCat ? `<tr class="cat-row"><td colspan="3">${esc(r.category)}</td></tr>` : '';
+    lastCat = r.category;
+    return catRow + `<tr><td>${esc(r.trait)}</td><td class="num">${fmtNum(r.n)}</td><td class="num">${r.pct}%</td></tr>`;
+  }).join('');
+  return `<div><h3>${esc(title)}</h3>
+    <div class="table-wrap"><table><thead><tr><th>Trait</th><th>N</th><th>%</th></tr></thead><tbody>${trs}</tbody></table></div>
+  </div>`;
+}
+
+function renderSummaryStats(summaryStats) {
+  const titleMap = {
+    full_corpus_n12916: 'Full corpus (12,916 books)',
+    restricted_sample_n494: 'Restricted sample (494 books)',
+    current_sample: 'Current sample',
+    full_bank: 'Full bank',
+    matched_sample_n8124: 'Matched checkout sample (8,124 books)',
+  };
+  const groups = Object.entries(summaryStats).map(([key, rows]) => renderSummaryStatsGroup(titleMap[key] || key, rows)).join('');
+  return `
+    <section class="block">
+      <h2>Sample summary statistics</h2>
+      <div class="stats-groups">${groups}</div>
+    </section>`;
+}
+
+function starsFor(p) {
+  if (p == null) return '';
+  return p < 0.01 ? '***' : p < 0.05 ? '**' : p < 0.10 ? '*' : '';
+}
+
+function demandCell(cell) {
+  if (!cell) return '<span class="na">—</span>';
+  const stars = starsFor(cell.p);
+  const seLine = `<span class="se">(${cell.se.toFixed(4)})</span>`;
+  const fLine = cell.f_stat != null ? `<br><span class="se">F=${cell.f_stat.toFixed(1)}</span>` : '';
+  const ciLine = cell.ci_lower != null
+    ? `<br><span class="se">95% CI [${cell.ci_lower.toFixed(4)}, ${cell.ci_upper.toFixed(4)}]</span>` : '';
+  const nLine = cell.n_books != null ? `<br><span class="se">N=${fmtNum(cell.n_books)}</span>` : '';
+  return `<span class="coef">${cell.coef >= 0 ? '+' : ''}${cell.coef.toFixed(4)}${esc(stars)}</span><br>${seLine}${fLine}${ciLine}${nLine}`;
+}
+
+function renderMethodology(data) {
+  const outcomes = (data.outcomes || []).map(o => `
+    <div class="outcome-card">
+      <h3>${esc(o.source)}</h3>
+      <div>${esc(o.text)}</div>
+    </div>`).join('');
+  // equation/note fields contain deliberate HTML (sub/sup/entities), authored
+  // in research_manifest.py, not user input -- injected directly, not esc()'d.
+  const equations = (data.equations || []).map(e => `
+    <div class="eqn-card">
+      <h3>${esc(e.label)}</h3>
+      <div class="eqn-formula">${e.equation}</div>
+      <div class="eqn-note">${e.note}</div>
+    </div>`).join('');
+  if (!outcomes && !equations) return '';
+  return `
+    <section class="block">
+      <h2>How the outcome variable was constructed</h2>
+      ${outcomes}
+    </section>
+    <section class="block">
+      <h2>Regression equations</h2>
+      ${equations}
+    </section>`;
+}
+
+function renderDemandComparison(data) {
+  if (data.error) {
+    return `<div class="error">${esc(data.error)}</div>`;
+  }
+  const rows = (data.comparison || []).map(r => `
+    <tr>
+      <td>${esc(r.spec)}</td>
+      <td class="coef-cell">${demandCell(r.keepa)}</td>
+      <td class="coef-cell">${demandCell(r.checkout)}</td>
+    </tr>`).join('');
+  return `
+    ${data.headline ? `<div class="callout"><b>Headline:</b> ${esc(data.headline)}</div>` : ''}
+    <section class="block">
+      <h2>Keepa sales rank vs. SPL checkout demand</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Estimator</th>
+            <th class="outcome-head">Keepa (sales rank)<span class="sign-hint">+ = sells worse post-ChatGPT</span></th>
+            <th class="outcome-head">SPL checkouts<span class="sign-hint">+ = more checkouts post-ChatGPT</span></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="block-note">Robust/clustered SEs throughout (by book for panel specs, HC1/robust for cross-sectional). Stars: * p&lt;.10, ** p&lt;.05, *** p&lt;.01. CS-DiD ATT has no p-value column -- read significance off the 95% CI instead.</div>
+    </section>`;
+}
+
+function renderTask(taskId, data) {
+  if (taskId === 'books3-demand') {
+    const note = data.note;
+    return [
+      renderFunnel(data.funnel || []),
+      note ? `<div class="block-note" style="margin:-24px 0 24px;">${esc(note)}</div>` : '',
+      renderSummaryStats(data.summary_stats || {}),
+      renderMethodology(data),
+      renderDemandComparison(data),
+    ].join('');
+  }
+  const note = data.note || data.excluded_note;
+  return [
+    renderFunnel(data.funnel || []),
+    note ? `<div class="block-note" style="margin:-24px 0 24px;">${esc(note)}</div>` : '',
+    renderSummaryStats(data.summary_stats || {}),
+    renderResultsAndRegressions(taskId, data),
+  ].join('');
+}
+
+selectTab(TASKS[0].id);
+</script>
+</body>
+</html>
